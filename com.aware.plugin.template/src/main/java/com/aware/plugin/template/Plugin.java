@@ -83,7 +83,7 @@ public class Plugin extends Aware_Plugin {
                     Scheduler.Schedule pam = Scheduler.getSchedule(this, "pam_question");
     //                if (pam == null) {
                     pam = new Scheduler.Schedule("pam_question"); //schedule with pam_question as ID
-                    pam.addHour(3).addHour(4).random(30,1);
+                    pam.addHour(10).addHour(11).random(30,1);
                     pam.setActionType(Scheduler.ACTION_TYPE_BROADCAST); //sending a request to the client via broadcast
                     pam.setActionClass(ESM.ACTION_AWARE_QUEUE_ESM); //with the action of ACTION_AWARE_QUEUE_ESM, i.e., queueing a new ESM
                     pam.addActionExtra(ESM.EXTRA_ESM, esmFactory.build()); //add the questions from the factory
