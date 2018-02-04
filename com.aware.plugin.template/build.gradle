@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.aware.plugin.template" //EDIT ME
-        minSdkVersion minimum_sdk
+        minSdkVersion 19
         targetSdkVersion target_sdk
         versionCode version_code
         versionName version_readable
