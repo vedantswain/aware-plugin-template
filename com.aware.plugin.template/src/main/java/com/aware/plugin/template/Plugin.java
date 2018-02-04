@@ -5,7 +5,13 @@ import android.net.Uri;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
+import com.aware.ESM;
+import com.aware.ui.esms.ESMFactory;
+import com.aware.ui.esms.ESM_Likert;
 import com.aware.utils.Aware_Plugin;
+import com.aware.utils.Scheduler;
+
+import org.json.JSONException;
 
 public class Plugin extends Aware_Plugin {
 
@@ -52,11 +58,46 @@ public class Plugin extends Aware_Plugin {
 
             //Initialise AWARE instance in plugin
             Aware.startPlugin(this, "com.aware.plugin.template");
+
             Aware.startAWARE(this);
+
+            try {
+                //Using Likert scale to get users' rating of the day
+                ESMFactory esmFactory = new ESMFactory();
+
+                ESM_Likert evening_question = new ESM_Likert();
+                evening_question.setLikertMax(5)
+                        .setLikertMinLabel("Awful")
+                        .setLikertMaxLabel("Awesome!")
+                        .setLikertStep(1)
+                        .setTitle("Evening!")
+                        .setInstructions("How would you rate today?")
+                        .setExpirationThreshold(0) //no expiration = shows a notification the user can use to answer at any time
+                        .setNotificationTimeout(2 * 60) //the notification is automatically removed and the questionnaire expired after 5 minutes ( 5 * 60 seconds)
+                        .setSubmitButton("OK");
+
+                esmFactory.addESM(evening_question);
+
+                //Schedule this question for the evening, only if not yet defined
+                Scheduler.Schedule evening = Scheduler.getSchedule(this, "evening_question1.1");
+                if (evening == null) {
+                    evening = new Scheduler.Schedule("evening_question1.1"); //schedule with morning_question as ID
+                    evening.addMinute(3);
+                    evening.setActionType(Scheduler.ACTION_TYPE_BROADCAST); //sending a request to the client via broadcast
+                    evening.setActionClass(ESM.ACTION_AWARE_QUEUE_ESM); //with the action of ACTION_AWARE_QUEUE_ESM, i.e., queueing a new ESM
+                    evening.addActionExtra(ESM.EXTRA_ESM, esmFactory.build()); //add the questions from the factory
+
+                    Scheduler.saveSchedule(this, evening); //save the questionnaire and schedule it
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
 
-    return START_STICKY;
-}
+        return START_STICKY;
+    }
+
 
 
     @Override
